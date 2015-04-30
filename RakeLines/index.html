@@ -35,7 +35,8 @@
 		startY 		= 0,
 		height 		= 0,
 		width 		= 0,
-		gradient 	= 0;
+		gradient 	= 0,
+		colour;
 
 	/**
 	 * resets the startX/Y coodinates
@@ -62,48 +63,64 @@
 	}
 
 	/**
-	 * [width description]
-	 * @type {[type]}
+	 * generate a random colour - this is used to generate the gradient
+	 * and the shadow
+	 */
+	colour = getRandomColor();
+
+	/**
+	 * setup the canvas context
 	 */
 	width = canvas.width = document.documentElement.clientWidth;
 	height = canvas.height = document.documentElement.clientHeight;
 
 	gradient = context.createLinearGradient(0, 0, width, 0);
 	gradient.addColorStop("0", "#000");
-	gradient.addColorStop("0.5","#e4e4e4");
+	gradient.addColorStop("0.5", colour);
 	gradient.addColorStop("1.0", "#000");
 
 	context.translate(0.5, 0.5);
 	context.strokeStyle = gradient;
 	context.lineWidth = 1.5;
 
-	context.shadowColor = getRandomColor();
+	context.shadowColor = colour;
 	context.shadowBlur = 10;
 	context.shadowOffsetX = 0;
 	context.shadowOffsetY = 0;
 
+
+	/**
+	 * mouseup/mouseout
+	 * kill drawing
+	 */
+	['mouseup', 'mouseout'].forEach(function(evt) {
+		canvas.addEventListener(evt, function(el) {
+			reset();
+		});
+	});
+
+	/**
+	 * mousedown 
+	 * we can draw now
+	 */
 	canvas.addEventListener("mousedown", function(el) {
 		mouseDown = true;
 	});
 
-	canvas.addEventListener("mouseup", function(el) {
-		reset();
-	});
-
-	canvas.addEventListener("mouseout", function(el) {
-		reset();
-	});
-
+	
+	/**
+	 * mousemove 
+	 * moving the mouse when clicked draws lines
+	 */
 	canvas.addEventListener("mousemove", function(el) {
 
 		if (mouseDown) {
 
 			// if the centre of the answer circle is (h,k),angle θ,and radius r,then position of point is
-			// (h+rcosθ, k+rsinθ)
+			// (h + rcosθ, k + rsinθ)
 		
 			var x = el.clientX,
 				y = el.clientY,
-				angle = 0,
 				calcX = (startX || x),
 				calcY = (startY || y);
 
@@ -113,6 +130,7 @@
 
 					context.beginPath();
 
+					// drawing is mirrored in 4 corners
 					switch (corners) {
 						case 1:
 							context.moveTo(x, y - (i * dist));
