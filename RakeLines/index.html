@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>RakeLines</title>
+	<style type="text/css">
+	body {
+		background-color: #000;
+		padding: 0px;
+		margin: 0px;
+	}
+	canvas {
+		height: 100vh;
+  		width: 100vw;
+  		display: block;
+	}
+	</style>
+</head>
+<body>
+	<canvas id="canvas"></canvas>
+</body>
+<script type="text/javascript">
+	var canvas 		= document.getElementById('canvas'),
+		context 	= canvas.getContext('2d'),
+		maxLines 	= 5, 
+		lines 		= maxLines,
+		dist 		= 15,
+		mouseDown 	= false,
+		startX 		= 0,
+		startY 		= 0,
+		height 		= 0,
+		width 		= 0,
+		gradient 	= 0;
+
+	width = canvas.width = document.documentElement.clientWidth;
+	height = canvas.height = document.documentElement.clientHeight;
+
+	gradient = context.createLinearGradient(0, 0, width, 0);
+	gradient.addColorStop("0", "#000");
+	gradient.addColorStop("0.5","#e4e4e4");
+	gradient.addColorStop("1.0", "#000");
+
+	context.translate(0.5, 0.5);
+	context.strokeStyle = gradient;
+	context.lineWidth = 0.5;
+
+	canvas.addEventListener("mousedown", function(el) {
+		mouseDown = true;
+		lines = Math.ceil(Math.random() * maxLines);
+	});
+
+	canvas.addEventListener("mouseup", function(el) {
+		mouseDown = startX = startY = false;
+	});
+
+	canvas.addEventListener("mousemove", function(el) {
+
+		if (mouseDown) {
+
+			// if the centre of the answer circle is (h,k),angle θ,and radius r,then position of point is
+			// (h+rcosθ, k+rsinθ)
+		
+			var x = el.clientX,
+				y = el.clientY,
+				angle = 0,
+				calcX = (startX || x),
+				calcY = (startY || y);
+
+			for (var corners = 1; corners <= 4; corners++) {
+
+				for (var i = 0; i < lines ; i++) {
+
+					context.beginPath();
+
+					switch (corners) {
+						case 1:
+							context.moveTo(x, y - (i * dist));
+							context.lineTo(calcX, calcY - (i * dist));	
+							break;
+						case 2:
+							context.moveTo(width - x, height - (y - (i * dist)));
+							context.lineTo(width - calcX, height - (calcY - (i * dist)));
+							break;
+						case 3:
+							context.moveTo(x, height - (y - (i * dist)));
+							context.lineTo(calcX, height - (calcY - (i * dist)));
+							break;
+						case 4:
+							context.moveTo(width - x, (y - (i * dist)));
+							context.lineTo(width - calcX, (calcY - (i * dist)));
+							break;
+					}
+					
+					context.stroke();
+				}
+			}
+
+			startX = x;
+			startY = y;			
+		}
+	});
+</script>
+</html>
